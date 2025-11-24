@@ -7,17 +7,20 @@ import joblib
 import os
 from django.conf import settings
 import re
+import numpy as np
 
-# Load the trained model and vectorizer
-MODEL_PATH = os.path.join(settings.BASE_DIR, 'best_model.pkl')
+# Load the trained model, vectorizer, and SVD
+MODEL_PATH = os.path.join(settings.BASE_DIR, 'best_ml_model.pkl')
 VECTORIZER_PATH = os.path.join(settings.BASE_DIR, 'best_ml_vectorizer.pkl')
+SVD_PATH = os.path.join(settings.BASE_DIR, 'best_ml_svd.pkl')
 
 model = None
 vectorizer = None
+svd = None
 
 try:
     model = joblib.load(MODEL_PATH)
-    print("Model loaded successfully!")
+    print("ML model loaded successfully!")
 except Exception as e:
     print(f"Error loading model: {e}")
     model = None
@@ -29,6 +32,13 @@ except Exception as e:
     print(f"Error loading vectorizer: {e}")
     vectorizer = None
 
+try:
+    svd = joblib.load(SVD_PATH)
+    print("SVD loaded successfully!")
+except Exception as e:
+    print(f"Error loading SVD: {e}")
+    svd = None
+
 
 def clean_text(text):
     """
@@ -37,9 +47,6 @@ def clean_text(text):
     """
     # Convert to lowercase
     text = text.lower()
-    
-    # Remove special characters and digits
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
     
     # Remove extra whitespace
     text = ' '.join(text.split())
@@ -50,7 +57,7 @@ def clean_text(text):
 @api_view(['POST'])
 def predict_rating(request):
     """
-    Predict rating for a given review text
+    Predict rating for a given review text using ML model with vectorizer and SVD
     """
     serializer = PredictionInputSerializer(data=request.data)
     
@@ -62,13 +69,19 @@ def predict_rating(request):
     
     if model is None:
         return Response(
-            {'error': 'Model not loaded. Please ensure best_model.pkl exists in the backend directory.'},
+            {'error': 'Model not loaded. Please ensure best_ml_model.pkl exists in the backend directory.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     
     if vectorizer is None:
         return Response(
             {'error': 'Vectorizer not loaded. Please ensure best_ml_vectorizer.pkl exists in the backend directory.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+    if svd is None:
+        return Response(
+            {'error': 'SVD not loaded. Please ensure best_ml_svd.pkl exists in the backend directory.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     
@@ -82,18 +95,21 @@ def predict_rating(request):
         # Vectorize the text
         vectorized_text = vectorizer.transform([cleaned_text])
         
-        # If vectorizer produces more features than model expects, truncate to match
-        expected_features = 200
-        if vectorized_text.shape[1] > expected_features:
-            vectorized_text = vectorized_text[:, :expected_features]
+        # Apply SVD transformation
+        reduced_text = svd.transform(vectorized_text)
         
-        # Make prediction
-        prediction = model.predict(vectorized_text)[0]
+        # Make prediction with probability scores
+        prediction = model.predict(reduced_text)[0]
+        probabilities = model.predict_proba(reduced_text)[0]
+        
+        # Get the class with highest probability
+        predicted_class = model.classes_[probabilities.argmax()]
+        confidence = float(np.max(probabilities))
         
         # Save to database
         review = Review.objects.create(
             cleaned_text=cleaned_text,
-            predicted_score=int(prediction)
+            predicted_score=int(predicted_class)
         )
         
         # Serialize and return
@@ -103,6 +119,7 @@ def predict_rating(request):
             {
                 'success': True,
                 'data': response_serializer.data,
+                'confidence': confidence,
                 'message': 'Prediction completed successfully'
             },
             status=status.HTTP_201_CREATED

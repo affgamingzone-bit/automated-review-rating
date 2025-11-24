@@ -4,7 +4,7 @@ import './ReviewPredictor.css';
 
 const API_URL = 'http://localhost:8000/api';
 
-const ReviewPredictor = () => {
+const ReviewPredictor = ({ showOnlyForm, showOnlyHistory }) => {
   const [reviewText, setReviewText] = useState('');
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,7 @@ const ReviewPredictor = () => {
     // Validate that input contains at least some actual words (letters)
     const hasLetters = /[a-zA-Z]/.test(reviewText);
     if (!hasLetters) {
-      setError('❌ Invalid input! Please enter a review with actual words. Numbers and symbols alone are not valid reviews.');
+      setError('Invalid input! Please enter a review with actual words. Numbers and symbols alone are not valid reviews.');
       return;
     }
 
@@ -62,7 +62,7 @@ const ReviewPredictor = () => {
     const letterPercentage = (letterCount / totalCharacters) * 100;
 
     if (letterPercentage < 30) {
-      setError('❌ Invalid input! Your review contains too many symbols or numbers. Please use mostly words.');
+      setError('Invalid input! Your review contains too many symbols or numbers. Please use mostly words.');
       return;
     }
 
@@ -79,7 +79,7 @@ const ReviewPredictor = () => {
       if (response.data.success) {
         setPrediction(response.data.data);
         setReviewText('');
-        setSuccessMessage('Review predicted successfully! ✨');
+        setSuccessMessage('Review predicted successfully!');
         fetchAllReviews(); // Refresh the list
       }
     } catch (err) {
@@ -101,7 +101,7 @@ const ReviewPredictor = () => {
       1: '😞',
       2: '😕',
       3: '😐',
-      4: '😊',
+      4: '',
       5: '😍'
     };
     return emojis[score] || '😐';
@@ -114,122 +114,125 @@ const ReviewPredictor = () => {
 
   return (
     <div className="container">
-      <div className="header">
-        <h1>✨ Review Rating Predictor</h1>
-        <p>AI-powered rating prediction based on review content</p>
-      </div>
-
-      <div className="prediction-card">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="review">
-              Your Review ({reviewText.length}/500)
-            </label>
-            <textarea
-              id="review"
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value.slice(0, 500))}
-              placeholder="Share your honest feedback... (minimum 10 characters)"
-              rows="6"
-              disabled={loading}
-              maxLength="500"
-            />
+      {!showOnlyHistory && (
+        <div className="prediction-card">
+          <div className="form-header">
+            <h2>Write Your Review</h2>
+            
           </div>
+          
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="review">
+                Your Review ({reviewText.length}/500)
+              </label>
+              <textarea
+                id="review"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value.slice(0, 500))}
+                placeholder="Share your honest feedback... (minimum 10 characters)"
+                rows="6"
+                disabled={loading}
+                maxLength="500"
+              />
+            </div>
 
-          <button 
-            type="submit" 
-            className="submit-btn"
-            disabled={loading || !reviewText.trim() || reviewText.trim().length < 10}
-          >
-            {loading ? '⏳ Predicting...' : '🚀 Get Prediction'}
-          </button>
-        </form>
+            <button 
+              type="submit" 
+              className="submit-btn"
+              disabled={loading || !reviewText.trim() || reviewText.trim().length < 10}
+            >
+              {loading ? 'Predicting...' : 'Submit'}
+            </button>
+          </form>
 
-        {error && (
-          <div className="error-message">
-            <strong>⚠️ Error:</strong> {error}
-          </div>
-        )}
+          {error && (
+            <div className="error-message">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
 
-        {successMessage && (
-          <div style={{
-            marginTop: '20px',
-            padding: '15px',
-            background: '#e8f5e9',
-            borderLeft: '4px solid #4CAF50',
-            borderRadius: '8px',
-            color: '#2e7d32',
-            animation: 'slideIn 0.3s ease-out'
-          }}>
-            {successMessage}
-          </div>
-        )}
+          {successMessage && (
+            <div style={{
+              marginTop: '20px',
+              padding: '15px',
+              background: '#e8f5e9',
+              borderLeft: '4px solid #4CAF50',
+              borderRadius: '8px',
+              color: '#2e7d32',
+              animation: 'slideIn 0.3s ease-out'
+            }}>
+              {successMessage}
+            </div>
+          )}
 
-        {prediction && (
-          <div className="result-card">
-            <h2>🎯 Prediction Result</h2>
-            <div className="rating-display">
-              <span className="emoji">{getRatingEmoji(prediction.predicted_score)}</span>
-              <div className="rating-info">
-                <div 
-                  className="rating-score"
-                  style={{ color: getRatingColor(prediction.predicted_score) }}
-                >
-                  {prediction.predicted_score} / 5
-                </div>
-                <div className="stars">
-                  {[...Array(5)].map((_, i) => (
-                    <span 
-                      key={i} 
-                      className={i < prediction.predicted_score ? 'star filled' : 'star'}
-                    >
-                      ★
-                    </span>
-                  ))}
+          {prediction && (
+            <div className="result-card">
+              <h2>Prediction Result</h2>
+              <div className="rating-display">
+                <div className="rating-info">
+                  <div 
+                    className="rating-score"
+                    style={{ color: getRatingColor(prediction.predicted_score) }}
+                  >
+                    {prediction.predicted_score} / 5
+                  </div>
+                  <div className="stars">
+                    {[...Array(5)].map((_, i) => (
+                      <span 
+                        key={i} 
+                        className={i < prediction.predicted_score ? 'star filled' : 'star'}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
+              <div className="cleaned-text">
+                <strong>Processed Text:</strong>
+                <p>{prediction.cleaned_text}</p>
+              </div>
             </div>
-            <div className="cleaned-text">
-              <strong>📝 Processed Text:</strong>
-              <p>{prediction.cleaned_text}</p>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      <div className="history-section">
-        <button 
-          className="history-toggle"
-          onClick={() => setShowHistory(!showHistory)}
-        >
-          {showHistory ? '👁️ Hide' : '👀 Show'} Review History ({allReviews.length})
-        </button>
+      {!showOnlyForm && (
+        <div className="history-section">
+          <button 
+            className="history-toggle"
+            onClick={() => setShowHistory(!showHistory)}
+          >
+            {showHistory ? 'Hide' : 'Show'} Review History ({allReviews.length})
+          </button>
 
-        {showHistory && (
-          <div className="reviews-list">
-            {allReviews.length === 0 ? (
-              <p className="no-reviews">📭 No reviews yet. Start by predicting your first review!</p>
-            ) : (
-              allReviews.map((review) => (
-                <div key={review.id} className="review-item">
-                  <div className="review-header">
-                    <span 
-                      className="review-score"
-                      style={{ backgroundColor: getRatingColor(review.predicted_score) }}
-                    >
-                      {review.predicted_score} ★
-                    </span>
-                    <span className="review-date">
-                      {formatDate(review.created_at)}
-                    </span>
+          {showHistory && (
+            <div className="reviews-list">
+              {allReviews.length === 0 ? (
+                <p className="no-reviews">No reviews yet. Start by predicting your first review!</p>
+              ) : (
+                allReviews.map((review) => (
+                  <div key={review.id} className="review-item">
+                    <div className="review-header">
+                      <span 
+                        className="review-score"
+                        style={{ backgroundColor: getRatingColor(review.predicted_score) }}
+                      >
+                        {review.predicted_score} ★
+                      </span>
+                      <span className="review-date">
+                        {formatDate(review.created_at)}
+                      </span>
+                    </div>
+                    <p className="review-text">{review.cleaned_text}</p>
                   </div>
-                  <p className="review-text">{review.cleaned_text}</p>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
