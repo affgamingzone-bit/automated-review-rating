@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './CustomerReviews.css';
 
-const API_URL = 'http://localhost:8000/api';
-
-const CustomerReviews = () => {
-  const [reviews, setReviews] = useState([]);
+const CustomerReviews = ({ allReviews = [] }) => {
   const [stats, setStats] = useState({
     averageRating: 0,
     totalReviews: 0,
@@ -19,21 +15,8 @@ const CustomerReviews = () => {
   });
 
   useEffect(() => {
-    fetchReviewsData();
-  }, []);
-
-  const fetchReviewsData = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/reviews/`);
-      if (response.data.success) {
-        const reviewsData = response.data.data;
-        setReviews(reviewsData);
-        calculateStats(reviewsData);
-      }
-    } catch (err) {
-      console.error('Error fetching reviews:', err);
-    }
-  };
+    calculateStats(allReviews);
+  }, [allReviews]);
 
   const calculateStats = (reviewsData) => {
     const total = reviewsData.length;

@@ -4,18 +4,13 @@ import './ReviewPredictor.css';
 
 const API_URL = 'http://localhost:8000/api';
 
-const ReviewPredictor = ({ showOnlyForm, showOnlyHistory }) => {
+const ReviewPredictor = ({ showOnlyForm, showOnlyHistory, allReviews, setAllReviews }) => {
   const [reviewText, setReviewText] = useState('');
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [allReviews, setAllReviews] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
-
-  useEffect(() => {
-    fetchAllReviews();
-  }, []);
 
   // Clear messages after 5 seconds
   useEffect(() => {
@@ -24,17 +19,6 @@ const ReviewPredictor = ({ showOnlyForm, showOnlyHistory }) => {
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
-
-  const fetchAllReviews = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/reviews/`);
-      if (response.data.success) {
-        setAllReviews(response.data.data);
-      }
-    } catch (err) {
-      console.error('Error fetching reviews:', err);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,7 +64,18 @@ const ReviewPredictor = ({ showOnlyForm, showOnlyHistory }) => {
         setPrediction(response.data.data);
         setReviewText('');
         setSuccessMessage('Review predicted successfully!');
-        fetchAllReviews(); // Refresh the list
+        
+        // Instantly add the new review to the list
+        const newReview = {
+          id: response.data.data.id,
+          cleaned_text: response.data.data.cleaned_text,
+          predicted_score: response.data.data.predicted_score,
+          created_at: new Date().toISOString()
+        };
+        
+        if (setAllReviews) {
+          setAllReviews([newReview, ...allReviews]);
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Prediction failed. Please try again.');
