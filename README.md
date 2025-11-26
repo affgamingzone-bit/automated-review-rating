@@ -1,64 +1,99 @@
 # Review Rating Predictor - Full Stack Application
 
-A full-stack web application that uses machine learning to predict ratings from user reviews. Built with React frontend and Django REST Framework backend.
+A production-ready full-stack web application that uses machine learning to predict review ratings (1-5 stars) from text. Built with React frontend, Django REST Framework backend, and trained ML models.
 
-## 🚀 Features
+## 🌟 Features
 
-- **AI-Powered Predictions**: Uses a trained ML model to predict ratings (1-5 stars) from text reviews
-- **Real-time Processing**: Instant predictions with visual feedback
-- **Review History**: View all previous predictions with scores
-- **Clean UI**: Modern, responsive interface with color-coded ratings
-- **REST API**: Full-featured API for review predictions and data management
+- **🤖 AI-Powered Predictions**: Advanced ML models (Random Forest, Logistic Regression, Naive Bayes)
+- **⚡ Real-time Processing**: Instant predictions with TF-IDF vectorization and dimensionality reduction
+- **📊 Review History**: Complete prediction history with ratings and timestamps
+- **🎨 Modern UI**: Responsive React interface with color-coded ratings and visual feedback
+- **🔌 REST API**: Full-featured API for predictions and data management
+- **📈 Model Performance**: 64.93% test accuracy with Random Forest (best model)
+- **🔐 Secure**: Environment-based configuration and proper secret management
 
 ## 📋 Prerequisites
 
-Before running this application, ensure you have:
-
-- Python 3.8 or higher
-- Node.js 14 or higher
+- Python 3.8+ (tested with 3.9+)
+- Node.js 14+ (tested with 18+)
 - npm or yarn
-- A trained ML model saved as `best_model.pkl`
+- Git
+- Virtual environment support
 
 ## 🏗️ Project Structure
 
 ```
 review-rating-app/
-├── backend/                    # Django backend
-│   ├── manage.py
-│   ├── best_model.pkl         # Your trained ML model (required)
-│   ├── requirements.txt
-│   ├── config/                # Django project settings
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   └── api/                   # API application
-│       ├── models.py
-│       ├── serializers.py
-│       ├── views.py
-│       └── urls.py
-└── frontend/                  # React frontend
-    ├── package.json
-    ├── public/
-    └── src/
-        ├── App.js
-        ├── App.css
-        ├── index.js
-        ├── index.css
-        └── components/
-            ├── ReviewPredictor.js
-            └── ReviewPredictor.css
+├── backend/                          # Django REST API
+│   ├── api/                         # Main API application
+│   │   ├── models.py               # Review model
+│   │   ├── serializers.py          # Serializers
+│   │   ├── views.py                # API endpoints
+│   │   ├── urls.py                 # URL routing
+│   │   └── migrations/             # Database migrations
+│   ├── config/                      # Django configuration
+│   │   ├── settings.py             # Settings
+│   │   ├── urls.py                 # Root URLs
+│   │   └── wsgi.py                 # WSGI config
+│   ├── manage.py                   # Django CLI
+│   ├── requirements.txt            # Python dependencies
+│   ├── db.sqlite3                  # Local database
+│   └── retrain_model.py            # Model retraining script
+│
+├── frontend/                        # React application
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ReviewPredictor.js  # Main prediction component
+│   │   │   ├── ReviewPredictor.css # Styles
+│   │   │   ├── CustomerReviews.js  # Reviews list component
+│   │   │   └── CustomerReviews.css # Styles
+│   │   ├── App.js                  # Main app component
+│   │   ├── App.css                 # App styles
+│   │   ├── index.js                # Entry point
+│   │   └── index.css               # Global styles
+│   ├── public/
+│   │   └── index.html              # HTML template
+│   ├── package.json                # NPM dependencies
+│   └── package-lock.json
+│
+├── models/                          # ML Models (persistent storage)
+│   ├── best_ml_model.pkl           # Random Forest classifier (best)
+│   ├── best_ml_vectorizer.pkl      # TF-IDF vectorizer (15k features)
+│   └── best_ml_svd.pkl             # SVD transformer (200 components)
+│
+├── data/                            # Datasets
+│   ├── cleaned_dataset/
+│   │   └── cleaned_data.csv        # Preprocessed reviews
+│   └── extended_dataset/
+│       └── Reviews.csv             # Full dataset
+│
+├── notebooks/                       # Jupyter notebooks
+│   ├── cleaned.ipynb              # ML model training & analysis
+│   └── extended.ipynb             # Data exploration
+│
+├── .gitignore                       # Git ignore rules (comprehensive)
+├── README.md                        # This file
+└── LOGISTIC_REGRESSION_MODEL_REPORT.md  # Model documentation
 ```
 
-## 🔧 Installation
+## 🔧 Installation & Setup
+
+### Prerequisites Setup
+
+```bash
+# Clone repository
+git clone https://github.com/SeionixAi/B116-ADWADH-G--Full-Stack-Automated-Review-Rating-System-.git
+cd review-rating-app
+```
 
 ### Backend Setup
 
-1. **Navigate to backend directory**
+1. **Navigate to backend**
    ```bash
    cd backend
    ```
 
-2. **Create and activate virtual environment**
+2. **Create virtual environment**
    ```bash
    # Windows
    python -m venv venv
@@ -74,30 +109,33 @@ review-rating-app/
    pip install -r requirements.txt
    ```
 
-4. **Place your ML model**
-   - Copy your `best_model.pkl` file to the `backend/` directory
-   - Ensure the model accepts text input and returns numeric scores (1-5)
+4. **Verify ML models are in place**
+   ```bash
+   # Check that models exist in ../models/ folder
+   ls ../models/  # or dir ../models/ on Windows
+   # Should show: best_ml_model.pkl, best_ml_vectorizer.pkl, best_ml_svd.pkl
+   ```
 
-5. **Run migrations**
+5. **Run database migrations**
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-6. **Create superuser (optional)**
+6. **Create superuser (optional for admin access)**
    ```bash
    python manage.py createsuperuser
    ```
 
-7. **Start the backend server**
+7. **Start backend server**
    ```bash
    python manage.py runserver
    ```
-   Backend will run on: `http://localhost:8000`
+   ✅ Backend running on: `http://localhost:8000`
 
 ### Frontend Setup
 
-1. **Navigate to frontend directory** (in a new terminal)
+1. **In a new terminal, navigate to frontend**
    ```bash
    cd frontend
    ```
@@ -107,93 +145,108 @@ review-rating-app/
    npm install
    ```
 
-3. **Install additional packages**
-   ```bash
-   npm install axios
-   ```
-
-4. **Start the development server**
+3. **Start development server**
    ```bash
    npm start
    ```
-   Frontend will run on: `http://localhost:3000`
+   ✅ Frontend running on: `http://localhost:3000`
 
 ## 🎯 Usage
 
-1. **Open your browser** and navigate to `http://localhost:3000`
-
-2. **Enter a review** in the text area
-
-3. **Click "Predict Rating"** to get the AI prediction
-
+1. **Open browser**: Navigate to `http://localhost:3000`
+2. **Enter review**: Type or paste a product review
+3. **Click "Predict Rating"**: Get instant ML prediction
 4. **View results**:
-   - Rating score (1-5 stars)
-   - Visual representation with emojis and stars
-   - Processed/cleaned text
-   
-5. **Check history** by clicking "Show Review History" to see all previous predictions
+   - Predicted rating (1-5 stars)
+   - Visual representation
+   - Confidence score
+   - Processed text
+5. **View history**: Click "Show Review History" for all predictions
+
+### Example Reviews to Test
+
+```
+Positive: "This product is absolutely amazing! Best purchase ever!"
+Neutral: "It's okay, nothing special."
+Negative: "Terrible quality, broke after one day."
+Mixed: "Good value but average quality."
+```
 
 ## 🔌 API Endpoints
 
-### Base URL: `http://localhost:8000/api/`
+**Base URL**: `http://localhost:8000/api/`
 
-#### 1. Predict Rating
-- **Endpoint**: `POST /api/predict/`
-- **Request Body**:
-  ```json
-  {
-    "review_text": "This product is amazing!"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "success": true,
-    "data": {
+### 1. Predict Review Rating
+```http
+POST /predict/
+Content-Type: application/json
+
+{
+  "review_text": "This product is amazing!"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "cleaned_text": "product amazing",
+    "predicted_score": 5,
+    "created_at": "2025-11-26T10:30:00Z"
+  },
+  "confidence": 0.87,
+  "message": "Prediction completed successfully"
+}
+```
+
+### 2. Get All Reviews
+```http
+GET /reviews/
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
       "id": 1,
-      "cleaned_text": "this product is amazing",
+      "cleaned_text": "product amazing",
       "predicted_score": 5,
-      "created_at": "2025-11-19T10:30:00Z"
-    },
-    "message": "Prediction completed successfully"
-  }
-  ```
-
-#### 2. Get All Reviews
-- **Endpoint**: `GET /api/reviews/`
-- **Response**:
-  ```json
-  {
-    "success": true,
-    "data": [...],
-    "count": 10
-  }
-  ```
-
-#### 3. Get Single Review
-- **Endpoint**: `GET /api/reviews/<id>/`
-- **Response**:
-  ```json
-  {
-    "success": true,
-    "data": {
-      "id": 1,
-      "cleaned_text": "...",
-      "predicted_score": 5,
-      "created_at": "..."
+      "created_at": "2025-11-26T10:30:00Z"
     }
+  ],
+  "count": 1
+}
+```
+
+### 3. Get Single Review
+```http
+GET /reviews/{id}/
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "cleaned_text": "product amazing",
+    "predicted_score": 5,
+    "created_at": "2025-11-26T10:30:00Z"
   }
-  ```
+}
+```
 
-## 🧪 Testing the API
-
-Using **curl**:
+## 🧪 Testing with cURL
 
 ```bash
-# Predict rating
+# Test prediction
 curl -X POST http://localhost:8000/api/predict/ \
   -H "Content-Type: application/json" \
-  -d '{"review_text": "This product is absolutely amazing!"}'
+  -d "{\"review_text\": \"This product is amazing!\"}"
 
 # Get all reviews
 curl http://localhost:8000/api/reviews/
@@ -202,37 +255,78 @@ curl http://localhost:8000/api/reviews/
 curl http://localhost:8000/api/reviews/1/
 ```
 
-Using **Postman** or **Thunder Client**:
-1. Create a POST request to `http://localhost:8000/api/predict/`
-2. Set header: `Content-Type: application/json`
-3. Add body: `{"review_text": "Your review here"}`
+## 🤖 Machine Learning Models
 
-## 📊 Model Requirements
+### Model Overview
 
-Your `best_model.pkl` must:
+| Model | Test Accuracy | F1-Weighted | Training Time | Status |
+|-------|---------------|-------------|---------------|--------|
+| **Random Forest** | **0.6493** | **0.6441** | 1201s | ✅ **BEST** |
+| Logistic Regression | 0.6239 | 0.6274 | 193s | ✅ Good |
+| Naive Bayes | 0.5767 | 0.5788 | 1289s | ✅ Baseline |
 
-1. Be trained with scikit-learn
-2. Be saved using `joblib.dump()`
-3. Accept text input (string)
-4. Return numeric predictions (1-5)
+### Best Model: Random Forest
 
-### Training Data Format
-- **Feature**: `Cleaned_text` (preprocessed review text)
-- **Target**: `Score` (rating from 1-5)
+**Location**: `models/best_ml_model.pkl`
 
+**Architecture**:
+- **Algorithm**: Random Forest Classifier
+- **N-Estimators**: 100 decision trees
+- **Max Depth**: 20
+- **Max Features**: sqrt
+- **Class Weight**: Balanced
+- **Features**: 200 (after SVD reduction)
+
+**Feature Pipeline**:
+1. TF-IDF Vectorization (15,000 features)
+   - N-gram range: (1, 2)
+   - Min DF: 3, Max DF: 0.9
+2. SVD Dimensionality Reduction (200 components)
+3. SMOTE Class Balancing
+
+**Performance**:
+- Test Accuracy: 64.93%
+- F1-Weighted: 0.6441
+- F1-Macro: 0.6143
+- Cross-Validation Accuracy: 74.73% ± 0.23%
+
+### Text Preprocessing
+
+```python
+1. Lowercase conversion
+2. NLTK tokenization
+3. Stopword removal
+4. Lemmatization (WordNetLemmatizer)
+5. Token filtering (length > 2)
+```
+
+## 📊 Model Training (Optional)
+
+To retrain models with new data:
+
+```bash
+cd backend
+python retrain_model.py
+```
+
+The script will:
+1. Load all reviews from database
+2. Preprocess text
+3. Train Random Forest model
+4. Save updated model and vectorizer to `models/` folder
 
 ## ⚙️ Configuration
 
-### Backend Configuration
+### Backend Settings
 
 Edit `backend/config/settings.py`:
 
 ```python
-# Allow additional origins
+# CORS Origins
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    # Add your production URL here
+    # Add production URLs here
 ]
 
 # Database (default: SQLite)
@@ -242,76 +336,201 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Debug mode (set False in production)
+DEBUG = True
 ```
 
-### Frontend Configuration
+### Frontend API Configuration
 
 Edit `frontend/src/components/ReviewPredictor.js`:
 
 ```javascript
-// Change API URL if backend runs on different port
 const API_URL = 'http://localhost:8000/api';
 ```
 
+## 🐛 Troubleshooting
 
-**Port already in use:**
+### Backend Issues
+
+**Port 8000 already in use**:
 ```bash
-python manage.py runserver 8001  # Use different port
+python manage.py runserver 8001
+```
+
+**Model files not found**:
+```
+Error: Model not loaded. Please ensure best_ml_model.pkl exists in the models directory.
+```
+Solution: Ensure all three model files are in `models/` folder:
+- `best_ml_model.pkl`
+- `best_ml_vectorizer.pkl`
+- `best_ml_svd.pkl`
+
+**Database migrations fail**:
+```bash
+python manage.py migrate --run-syncdb
 ```
 
 ### Frontend Issues
 
-**Module not found errors:**
+**Module not found**:
 ```bash
-npm install  # Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-**Port 3000 already in use:**
+**Port 3000 already in use**:
 ```bash
-PORT=3001 npm start  # Use different port
+PORT=3001 npm start
 ```
 
-**API connection failed:**
-- Ensure backend is running on port 8000
-- Check API_URL in ReviewPredictor.js
+**API connection error**:
+- Verify backend is running: `http://localhost:8000`
+- Check CORS configuration in `settings.py`
+- Verify API_URL in ReviewPredictor.js
+
+### CORS Issues
+
+If you see CORS errors, ensure `django-cors-headers` is installed:
+```bash
+pip install django-cors-headers
+```
 
 ## 📱 Admin Panel
 
-Access Django admin at `http://localhost:8000/admin`
+Access Django admin: `http://localhost:8000/admin`
 
-Features:
-- View all reviews
+**Default URL**: `/admin/`
+
+**Features**:
+- View all reviews and predictions
 - Filter by rating and date
-- Search reviews
+- Search functionality
 - Manage predictions
 
-## 🚀 Deployment
+## 🚀 Production Deployment
 
-### Backend (Django)
+### Backend Deployment
 
-1. Set `DEBUG = False` in settings.py
-2. Add your domain to `ALLOWED_HOSTS`
-3. Set up a production database (PostgreSQL recommended)
-4. Use gunicorn or uWSGI
-5. Set up static files serving
+1. **Set production settings**:
+   ```python
+   DEBUG = False
+   ALLOWED_HOSTS = ['yourdomain.com']
+   SECRET_KEY = 'your-secure-secret-key'  # Use environment variable
+   ```
 
+2. **Use production server**:
+   ```bash
+   gunicorn config.wsgi:application --workers 4
+   ```
 
-## 📄 License
+3. **Set up database**: PostgreSQL recommended
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'review_db',
+           'USER': 'postgres',
+           'PASSWORD': 'password',
+           'HOST': 'localhost',
+           'PORT': '5432',
+       }
+   }
+   ```
 
-This project is open source and available under the MIT License.
+4. **Configure static files**:
+   ```bash
+   python manage.py collectstatic
+   ```
+
+### Frontend Deployment
+
+1. **Build for production**:
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy to Vercel, Netlify, or GitHub Pages**:
+   ```bash
+   npm install -g netlify-cli
+   netlify deploy --prod --dir=build
+   ```
+
+## 📚 Documentation
+
+- **[Logistic Regression Model Report](./LOGISTIC_REGRESSION_MODEL_REPORT.md)** - Detailed model analysis
+- **[Random Forest Specification](./RANDOM_FOREST_SPECIFICATION.md)** - Best model documentation
+
+## 🔐 Security
+
+- ✅ Environment variables for sensitive data (.env)
+- ✅ CORS properly configured
+- ✅ No hardcoded secrets in codebase
+- ✅ Comprehensive .gitignore (secrets, models, databases)
+- ✅ Input validation on API endpoints
+
+## 📦 Dependencies
+
+### Backend
+```
+Django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+scikit-learn==1.3.2
+pandas==2.1.3
+numpy==1.24.3
+joblib==1.3.2
+tensorflow==2.13.0
+```
+
+### Frontend
+```
+react==19.2.0
+react-dom==19.2.0
+axios==1.13.2
+react-scripts==5.0.1
+```
+
+## 📝 License
+
+MIT License - feel free to use for personal and commercial projects.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Submit a Pull Request
 
+## 🎓 Learning Resources
 
+- [Django REST Framework](https://www.django-rest-framework.org/)
+- [React Documentation](https://react.dev/)
+- [scikit-learn ML Guide](https://scikit-learn.org/)
+- [TensorFlow Documentation](https://www.tensorflow.org/)
+
+## 📞 Support
+
+For issues or questions:
+1. Check the [Troubleshooting](#-troubleshooting) section
+2. Review existing GitHub issues
+3. Create a new issue with detailed information
 
 ## 🙏 Acknowledgments
 
-- Built with Django REST Framework
-- React for the frontend
-- scikit-learn for machine learning
+- **Django & Django REST Framework** - Backend framework
+- **React** - Frontend library
+- **scikit-learn** - Machine learning algorithms
+- **pandas & numpy** - Data processing
+- **TensorFlow** - Deep learning capabilities
 
 ---
+
+**Last Updated**: November 26, 2025  
+**Version**: 1.0.0  
+**Status**: Production Ready ✅
 
 **Happy Predicting! 🎯**
