@@ -4,8 +4,8 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: cd backend && gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    buildCommand: bash build.sh
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --chdir backend
     envVars:
       - key: DEBUG
         value: "False"
