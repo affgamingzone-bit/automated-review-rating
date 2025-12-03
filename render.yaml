@@ -22,9 +22,7 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         value: "https://automated-deployed.vercel.app"
 
-  - type: pserv
-    name: automated-review-rating-db
-    env: postgres
+databases:
+  - name: automated-review-rating-db
     plan: free
     region: oregon
-    ipAllowList: []
