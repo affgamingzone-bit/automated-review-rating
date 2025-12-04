@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+echo "Copying model files to backend..."
+mkdir -p backend/models
+cp models/*.pkl backend/models/ || true
+
 echo "Installing Python dependencies..."
 pip install -r backend/requirements.txt
 

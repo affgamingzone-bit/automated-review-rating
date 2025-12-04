@@ -10,7 +10,21 @@ import re
 import numpy as np
 
 # Load the trained model, vectorizer, and SVD from models folder
-MODELS_DIR = os.path.join(settings.BASE_DIR.parent, 'models')
+# Try multiple paths: first in backend/models, then in root models folder
+POSSIBLE_PATHS = [
+    os.path.join(settings.BASE_DIR, 'models'),  # backend/models
+    os.path.join(settings.BASE_DIR.parent, 'models'),  # root/models
+]
+
+MODELS_DIR = None
+for path in POSSIBLE_PATHS:
+    if os.path.exists(path):
+        MODELS_DIR = path
+        break
+
+if MODELS_DIR is None:
+    MODELS_DIR = os.path.join(settings.BASE_DIR, 'models')
+
 MODEL_PATH = os.path.join(MODELS_DIR, 'best_ml_model.pkl')
 VECTORIZER_PATH = os.path.join(MODELS_DIR, 'best_ml_vectorizer.pkl')
 SVD_PATH = os.path.join(MODELS_DIR, 'best_ml_svd.pkl')
