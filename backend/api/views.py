@@ -16,42 +16,58 @@ POSSIBLE_PATHS = [
     os.path.join(settings.BASE_DIR.parent, 'models'),  # root/models
 ]
 
+print(f"[DEBUG] BASE_DIR: {settings.BASE_DIR}")
+print(f"[DEBUG] BASE_DIR.parent: {settings.BASE_DIR.parent}")
+
 MODELS_DIR = None
 for path in POSSIBLE_PATHS:
+    print(f"[DEBUG] Checking path: {path}")
     if os.path.exists(path):
+        print(f"[DEBUG] Found models directory at: {path}")
         MODELS_DIR = path
         break
 
 if MODELS_DIR is None:
     MODELS_DIR = os.path.join(settings.BASE_DIR, 'models')
+    print(f"[DEBUG] Using default models directory: {MODELS_DIR}")
 
 MODEL_PATH = os.path.join(MODELS_DIR, 'best_ml_model.pkl')
 VECTORIZER_PATH = os.path.join(MODELS_DIR, 'best_ml_vectorizer.pkl')
 SVD_PATH = os.path.join(MODELS_DIR, 'best_ml_svd.pkl')
+
+print(f"[DEBUG] Looking for models at:")
+print(f"[DEBUG]   Model: {MODEL_PATH}")
+print(f"[DEBUG]   Vectorizer: {VECTORIZER_PATH}")
+print(f"[DEBUG]   SVD: {SVD_PATH}")
 
 model = None
 vectorizer = None
 svd = None
 
 try:
+    print(f"[DEBUG] Attempting to load model from: {MODEL_PATH}")
     model = joblib.load(MODEL_PATH)
-    print("ML model loaded successfully!")
+    print("✅ ML model loaded successfully!")
 except Exception as e:
-    print(f"Error loading model: {e}")
+    print(f"❌ Error loading model: {e}")
+    print(f"[DEBUG] File exists: {os.path.exists(MODEL_PATH)}")
+    print(f"[DEBUG] Directory contents: {os.listdir(MODELS_DIR) if os.path.exists(MODELS_DIR) else 'Directory not found'}")
     model = None
 
 try:
+    print(f"[DEBUG] Attempting to load vectorizer from: {VECTORIZER_PATH}")
     vectorizer = joblib.load(VECTORIZER_PATH)
-    print("Vectorizer loaded successfully!")
+    print("✅ Vectorizer loaded successfully!")
 except Exception as e:
-    print(f"Error loading vectorizer: {e}")
+    print(f"❌ Error loading vectorizer: {e}")
     vectorizer = None
 
 try:
+    print(f"[DEBUG] Attempting to load SVD from: {SVD_PATH}")
     svd = joblib.load(SVD_PATH)
-    print("SVD loaded successfully!")
+    print("✅ SVD loaded successfully!")
 except Exception as e:
-    print(f"Error loading SVD: {e}")
+    print(f"❌ Error loading SVD: {e}")
     svd = None
 
 
