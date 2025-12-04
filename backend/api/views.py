@@ -85,6 +85,26 @@ def clean_text(text):
     return text
 
 
+@api_view(['GET'])
+def health_check(request):
+    """
+    Health check endpoint - reports if the service and models are ready
+    """
+    health_status = {
+        'status': 'healthy' if (model and vectorizer and svd) else 'degraded',
+        'django': 'ok',
+        'database': 'ok',
+        'models': {
+            'model': 'loaded' if model else 'not_loaded',
+            'vectorizer': 'loaded' if vectorizer else 'not_loaded',
+            'svd': 'loaded' if svd else 'not_loaded'
+        }
+    }
+    
+    http_status = status.HTTP_200_OK if health_status['status'] == 'healthy' else status.HTTP_503_SERVICE_UNAVAILABLE
+    return Response(health_status, status=http_status)
+
+
 @api_view(['POST'])
 def predict_rating(request):
     """

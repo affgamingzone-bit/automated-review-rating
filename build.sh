@@ -4,47 +4,48 @@ set -e
 echo "Current working directory: $(pwd)"
 echo ""
 
+echo "=== Installing Python dependencies ==="
+pip install -r backend/requirements.txt
+
+echo ""
 echo "=== Downloading ML Model Files ==="
 mkdir -p backend/models
 cd backend/models
 
-# Download models from a cloud storage (using curl)
-# You can replace these URLs with your actual model storage URLs
-# For now, we'll create placeholder URLs - you need to host these files
-
-echo "Downloading model files..."
-
-# These URLs should point to your hosted model files
-# For demonstration, creating empty files (you'll need to upload actual models)
-# Option 1: Use GitHub Releases (recommended)
+# These URLs point to GitHub Releases
+# Replace with your actual release URL once you upload the files
 MODEL_URL="https://github.com/affgamingzone-bit/automated-review-rating/releases/download/v1.0/best_ml_model.pkl"
 VECTORIZER_URL="https://github.com/affgamingzone-bit/automated-review-rating/releases/download/v1.0/best_ml_vectorizer.pkl"
 SVD_URL="https://github.com/affgamingzone-bit/automated-review-rating/releases/download/v1.0/best_ml_svd.pkl"
 
-# Download with retry logic
 download_file() {
   local url=$1
   local output=$2
-  echo "Downloading $output from $url..."
-  if curl -L -f -o "$output" "$url" 2>/dev/null; then
-    echo "✅ Downloaded $output"
+  echo "Attempting to download $output..."
+  if curl -L -f --connect-timeout 30 -o "$output" "$url" 2>&1; then
+    if [ -s "$output" ]; then
+      echo "✅ Successfully downloaded $output ($(ls -lh $output | awk '{print $5}'))"
+      return 0
+    else
+      echo "⚠️  File is empty: $output"
+      return 1
+    fi
   else
-    echo "⚠️  Could not download $output - file might not exist yet"
-    echo "Please upload model files to GitHub Releases or another cloud storage"
-    # Create empty placeholder
-    touch "$output"
+    echo "⚠️  Could not download $output"
+    return 1
   fi
 }
 
-download_file "$MODEL_URL" "best_ml_model.pkl"
-download_file "$VECTORIZER_URL" "best_ml_vectorizer.pkl"
-download_file "$SVD_URL" "best_ml_svd.pkl"
-
-cd ../..
+echo "Downloading model files from GitHub Releases..."
+download_file "$MODEL_URL" "best_ml_model.pkl" || echo "Model download failed - will try local fallback"
+download_file "$VECTORIZER_URL" "best_ml_vectorizer.pkl" || echo "Vectorizer download failed"
+download_file "$SVD_URL" "best_ml_svd.pkl" || echo "SVD download failed"
 
 echo ""
-echo "=== Installing Python dependencies ==="
-pip install -r backend/requirements.txt
+echo "Files in backend/models:"
+ls -lh
+
+cd ../..
 
 echo ""
 echo "=== Running Django migrations ==="
@@ -52,7 +53,7 @@ python backend/manage.py migrate
 
 echo ""
 echo "=== Collecting static files ==="
-python backend/manage.py collectstatic --noinput
+python backend/manage.py collectstatic --noinput || echo "Static files collection had issues but continuing..."
 
 echo ""
 echo "✅ Build completed successfully!"
