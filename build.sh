@@ -2,35 +2,45 @@
 set -e
 
 echo "Current working directory: $(pwd)"
-echo "Listing root directory contents:"
-ls -la
-
 echo ""
-echo "=== Copying model files to backend ==="
+
+echo "=== Downloading ML Model Files ==="
 mkdir -p backend/models
+cd backend/models
 
-# The repository root is at /opt/render/project/src
-# We need to copy from /opt/render/project/src/models to /opt/render/project/src/backend/models
-REPO_ROOT=$(pwd)
-SOURCE_MODELS="$REPO_ROOT/models"
-DEST_MODELS="$REPO_ROOT/backend/models"
+# Download models from a cloud storage (using curl)
+# You can replace these URLs with your actual model storage URLs
+# For now, we'll create placeholder URLs - you need to host these files
 
-echo "Source: $SOURCE_MODELS"
-echo "Destination: $DEST_MODELS"
+echo "Downloading model files..."
 
-if [ -d "$SOURCE_MODELS" ]; then
-  echo "✅ Found models directory"
-  echo "Contents:"
-  ls -la "$SOURCE_MODELS"
-  echo ""
-  echo "Copying files..."
-  cp -v "$SOURCE_MODELS"/*.pkl "$DEST_MODELS/" || echo "⚠️  Warning: Copy failed"
-  echo "Copied files:"
-  ls -la "$DEST_MODELS"
-else
-  echo "❌ Models directory not found at $SOURCE_MODELS"
-  find "$REPO_ROOT" -name "*.pkl" -type f 2>/dev/null | head -20 || echo "No .pkl files found"
-fi
+# These URLs should point to your hosted model files
+# For demonstration, creating empty files (you'll need to upload actual models)
+# Option 1: Use GitHub Releases (recommended)
+MODEL_URL="https://github.com/affgamingzone-bit/automated-review-rating/releases/download/v1.0/best_ml_model.pkl"
+VECTORIZER_URL="https://github.com/affgamingzone-bit/automated-review-rating/releases/download/v1.0/best_ml_vectorizer.pkl"
+SVD_URL="https://github.com/affgamingzone-bit/automated-review-rating/releases/download/v1.0/best_ml_svd.pkl"
+
+# Download with retry logic
+download_file() {
+  local url=$1
+  local output=$2
+  echo "Downloading $output from $url..."
+  if curl -L -f -o "$output" "$url" 2>/dev/null; then
+    echo "✅ Downloaded $output"
+  else
+    echo "⚠️  Could not download $output - file might not exist yet"
+    echo "Please upload model files to GitHub Releases or another cloud storage"
+    # Create empty placeholder
+    touch "$output"
+  fi
+}
+
+download_file "$MODEL_URL" "best_ml_model.pkl"
+download_file "$VECTORIZER_URL" "best_ml_vectorizer.pkl"
+download_file "$SVD_URL" "best_ml_svd.pkl"
+
+cd ../..
 
 echo ""
 echo "=== Installing Python dependencies ==="

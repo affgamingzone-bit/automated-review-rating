@@ -54,7 +54,7 @@ migrations/*.py
 # ==================================================================================
 # MACHINE LEARNING MODELS & DATA
 # ==================================================================================
-# Large model files (for production, consider using Git LFS)
+# Models are downloaded during build, not stored in Git
 *.pkl
 *.pickle
 *.joblib
@@ -66,10 +66,7 @@ migrations/*.py
 *.model
 *.bin
 *.pb
-best_ml_*.pkl
 best_ml_*.pkl.bak
-best_model.pkl
-*.pkl.bak
 
 # Large datasets (keep only in data/ if necessary)
 *.csv
@@ -184,7 +181,6 @@ Thumbs.db
 *.swp
 Icon?
 .gitkeep
-.gitattributes
 desktop.ini
 
 # ==================================================================================
@@ -257,8 +253,6 @@ dmypy.json
 backend/venv/
 frontend/node_modules/
 backend/best_ml_vectorizer.pkl.bak
-backend/*.pkl
-models/*.pkl
 models/*.pkl.bak
 
 # Temporary scripts
